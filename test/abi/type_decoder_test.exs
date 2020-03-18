@@ -41,6 +41,33 @@ defmodule ABI.TypeDecoderTest do
       result = [[<<0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 35>>]]
       encoded_result = TypeEncoder.encode(result, types)
       assert result == encoded_result |> TypeDecoder.decode(types)
+
+      types = [{:array, :address}]
+
+      result = [
+        [
+          <<11, 47, 94, 47, 60, 189, 134, 78, 170, 44, 100, 46, 55, 105, 193, 88, 35, 97, 202,
+            246>>,
+          <<170, 148, 182, 135, 211, 249, 85, 42, 69, 59, 129, 178, 131, 76, 165, 55, 120, 152,
+            13, 192>>,
+          <<49, 44, 35, 14, 125, 109, 176, 82, 36, 246, 2, 8, 166, 86, 227, 84, 28, 92, 66, 186>>
+        ]
+      ]
+
+      encoded_pattern =
+        """
+        0000000000000000000000000000000000000000000000000000000000000020
+        0000000000000000000000000000000000000000000000000000000000000003
+        0000000000000000000000000b2f5e2f3cbd864eaa2c642e3769c1582361caf6
+        000000000000000000000000aa94b687d3f9552a453b81b2834ca53778980dc0
+        000000000000000000000000312c230e7d6db05224f60208a656e3541c5c42ba
+        """
+        |> encode_multiline_string()
+
+      encoded_result = TypeEncoder.encode(result, types)
+
+      assert encoded_result = encoded_pattern
+      assert result == encoded_result |> TypeDecoder.decode(types)
     end
 
     test "with a fixed-length array of static data" do
@@ -385,26 +412,26 @@ defmodule ABI.TypeDecoderTest do
     end
 
     test "sample from Solidity docs 1" do
-        encoded_pattern =
-          """
-          0000000000000000000000000000000000000000000000000000000000000040
-          00000000000000000000000000000000000000000000000000000000000000ea
-          0000000000000000000000000000000000000000000000000000000000000008
-          48656c6c6f212521000000000000000000000000000000000000000000000000
-          """
-          |> encode_multiline_string()
+      encoded_pattern =
+        """
+        0000000000000000000000000000000000000000000000000000000000000040
+        00000000000000000000000000000000000000000000000000000000000000ea
+        0000000000000000000000000000000000000000000000000000000000000008
+        48656c6c6f212521000000000000000000000000000000000000000000000000
+        """
+        |> encode_multiline_string()
 
-        res =
-          encoded_pattern
-          |> ABI.TypeDecoder.decode(%ABI.FunctionSelector{
-            function: nil,
-            types: [
-              {:tuple, [:string, {:uint, 256}]}
-            ]
-          })
+      res =
+        encoded_pattern
+        |> ABI.TypeDecoder.decode(%ABI.FunctionSelector{
+          function: nil,
+          types: [
+            {:tuple, [:string, {:uint, 256}]}
+          ]
+        })
 
-        assert res == [{"Hello!%!", 234}]
-      end
+      assert res == [{"Hello!%!", 234}]
+    end
 
     #   test "temp" do # the same as in doctest
     #     encoded = ABI.TypeEncoder.encode([{"awesome", true}], [{:tuple, [:string, :bool]}])
