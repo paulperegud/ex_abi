@@ -1,3 +1,5 @@
+# FORK
+* replace ex_keccak with ex_sha3 to get rid of Rust dependency
 # 0.5.3
 * Fix decoding of output data prefixed with method id (https://github.com/poanetwork/ex_abi/pull/50)
 # 0.5.2

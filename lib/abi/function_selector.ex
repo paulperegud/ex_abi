@@ -366,8 +366,8 @@ defmodule ABI.FunctionSelector do
   defp add_method_id(selector) do
     signature = encode(selector)
 
-    case ExKeccak.hash_256(signature) do
-      {:ok, <<method_id::binary-size(4), _::binary>>} ->
+    case ExSha3.keccak_256(signature) do
+      <<method_id::binary-size(4), _::binary>> ->
         %{selector | method_id: method_id}
 
       _ ->
